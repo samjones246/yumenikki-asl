@@ -92,7 +92,7 @@ split
     }
 
     // Split on entering closet
-    if (settings["splitCloset"] && old.levelid == 35 && current.levelid == 30){
+    if (settings["splitCloset"] && (old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
         vars.Log("Entered closet");
         return true;
     }
