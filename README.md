@@ -3,6 +3,7 @@ LiveSplit autosplitter for Yume Nikki by Kikiyama
 
 ## Supported versions
  - 0.10 English
+ - Steam
 
 ## Features
  - Auto start
