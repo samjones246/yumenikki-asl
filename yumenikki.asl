@@ -1,9 +1,16 @@
 state("RPG_RT", "0.10_eng")
 {
+    // Current map
     int levelid : 0xD1F70, 0x4;
-    bool inMenu : 0x000261B0, 0x231;
+
+    // Player x coordinate
     int posX : 0xD2004, 0x14;
+
+    // Pointer to the start of the array containing the player's inventory
     int effectsPtr : 0xD1FF8, 0x20;
+
+    // A value used for detecting when start is pressed. I have no idea what it is.
+    int weirdMenuVal : 0x000D1F60, 0x5DC;
 }
 
 startup
@@ -38,6 +45,7 @@ init
 
 update
 {
+    // Update inventory array
     old.effects = current.effects;
     current.effects = game.ReadBytes(new IntPtr(current.effectsPtr), 24);
 }
@@ -45,7 +53,7 @@ update
 start
 {
     // Bad and hacky
-    return current.posX == 0 && old.inMenu && !current.inMenu;
+    return old.weirdMenuVal == 1000 && current.weirdMenuVal == 800;
 }
 
 split
