@@ -1,5 +1,5 @@
-# yummenikki-asl
-LiveSplit autosplitter for Yumme Nikki by Kikiyama
+# yumenikki-asl
+LiveSplit autosplitter for Yume Nikki by Kikiyama
 
 ## Supported versions
  - 0.10 English
