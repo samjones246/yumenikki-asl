@@ -13,6 +13,17 @@ state("RPG_RT", "0.10_eng")
     int weirdMenuVal : 0x000D1F60, 0x5DC;
 }
 
+state("RPG_RT", "steam")
+{
+
+    int levelid : 0xD1F70, 0x4;
+    int posX : 0xD2014, 0x14;
+    int effectsPtr : 0xD2008, 0x20;
+    int weirdMenuVal : 0x000D2078, 0x880;
+}
+
+
+
 startup
 {
     vars.Log = (Action<object>)((output) => print("[Yume Nikki ASL] " + output));
@@ -40,12 +51,22 @@ startup
 
 init
 {
-    current.effects = null;
+    //vars.Log(modules.First().ModuleName);
+    //vars.Log(modules.First().ModuleMemorySize.ToString("X"));
+    if (modules.First().ModuleMemorySize == 0x106000){
+        version = "steam";
+    }
+    else if (modules.First().ModuleMemorySize == 0xF2000){
+        version = "0.10_eng";
+    }
 }
 
 update
 {
     // Update inventory array
+    if (!((IDictionary<String, Object>)current).ContainsKey("effects")){
+        current.effects = null;
+    }
     old.effects = current.effects;
     current.effects = game.ReadBytes(new IntPtr(current.effectsPtr), 24);
 }
