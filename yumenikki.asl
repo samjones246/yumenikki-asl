@@ -16,7 +16,7 @@ state("RPG_RT", "0.10_eng")
 state("RPG_RT", "steam")
 {
 
-    int levelid : 0xD1F70, 0x4;
+    int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
     int effectsPtr : 0xD2008, 0x20;
     int weirdMenuVal : 0x000D2078, 0x880;
