@@ -19,7 +19,8 @@ state("RPG_RT", "steam")
     int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
     int effectsPtr : 0xD2008, 0x20;
-    int weirdMenuVal : 0x000D2078, 0x880;
+    int weirdMenuVal : 0x000D2078, 0x9A4;
+    int frames : 0xD2008, 0x8;
 }
 
 
@@ -51,8 +52,11 @@ startup
 
 init
 {
-    //vars.Log(modules.First().ModuleName);
-    //vars.Log(modules.First().ModuleMemorySize.ToString("X"));
+    vars.DEBUG = true;
+    if (vars.DEBUG){
+        vars.Log(modules.First().ModuleName);
+        vars.Log(modules.First().ModuleMemorySize.ToString("X"));
+    }
     if (modules.First().ModuleMemorySize == 0x106000){
         version = "steam";
     }
@@ -69,12 +73,20 @@ update
     }
     old.effects = current.effects;
     current.effects = game.ReadBytes(new IntPtr(current.effectsPtr), 24);
+
+    if (current.levelid != old.levelid && vars.DEBUG){
+        vars.Log("Level changed: " + old.levelid + " -> " + current.levelid);
+    }
 }
 
 start
 {
     // Bad and hacky
-    return old.weirdMenuVal == 1000 && current.weirdMenuVal == 800;
+    if (old.weirdMenuVal == 1000 && current.weirdMenuVal == 800){
+        vars.Log("Starting");
+        vars.startFrames = current.frames;
+        return true;
+    }
 }
 
 split
@@ -104,4 +116,9 @@ split
     }
 
     return false;
+}
+
+reset
+{
+    return current.frames < old.frames && old.frames != vars.startFrames;
 }
