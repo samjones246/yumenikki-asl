@@ -50,7 +50,7 @@ startup
 
     settings.Add("splitCloset", true, "Split on entering closet");
 
-    settings.Add("splitUboa", true, "Split on Uboa spawn")
+    settings.Add("splitUboa", true, "Split on Uboa spawn");
 }
 
 init
@@ -118,7 +118,7 @@ split
         return true;
     }
 
-    if (setting["splitUboa"] && current.uboaState == 2 && old.uboaState != 2){
+    if (settings["splitUboa"] && current.uboaState == 2 && old.uboaState != 2){
         vars.Log("Uboa Spawned");
         return true;
     }
