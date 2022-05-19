@@ -11,10 +11,16 @@ state("RPG_RT", "0.10_eng")
 
     // A value used for detecting when start is pressed. I have no idea what it is.
     int weirdMenuVal : 0x000D1F60, 0x5DC;
+
+    // Frame counter, resets on entering menu and on entering instructions screen after starting game
+    int frames : 0xD1FF8, 0x8;
+
+    // State variable for Uboa room: 0 = light on, 1 = light off, 2 = uboa spawned
+    int uboaState : 0xD1FF8, 0x28, 0x28;
 }
 
 state("RPG_RT", "steam")
-{
+{ 
 
     int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
