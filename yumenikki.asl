@@ -17,6 +17,9 @@ state("RPG_RT", "0.10_eng")
 
     // State variable for Uboa room: 0 = light on, 1 = light off, 2 = uboa spawned
     int uboaState : 0xD1FF8, 0x28, 0x28;
+
+    // A boolean which is true during transitions and certain other places
+    bool doorFlag : 0xD1FF8, 0x20, 0x7f;
 }
 
 state("RPG_RT", "steam")
@@ -28,6 +31,7 @@ state("RPG_RT", "steam")
     int weirdMenuVal : 0x000D2078, 0x9A4;
     int frames : 0xD2008, 0x8;
     int uboaState : 0xD2008, 0x28, 0x28;
+    bool doorFlag : 0xD2008, 0x20, 0x7f;
 }
 
 
@@ -57,6 +61,8 @@ startup
     settings.Add("splitCloset", true, "Split on entering closet");
 
     settings.Add("splitUboa", true, "Split on Uboa spawn");
+
+    settings.Add("splitFace", true, "Split on FACE event");
 }
 
 init
@@ -126,6 +132,14 @@ split
 
     if (settings["splitUboa"] && current.uboaState == 2 && old.uboaState != 2){
         vars.Log("Uboa Spawned");
+        return true;
+    }
+
+    // Split on entering FACE door.
+    // Checks for: right level, right x-coord, and door flag active
+    if (settings["splitFace"] && current.levelid == 33 && current.doorFlag && !old.doorFlag && current.posX == 29){
+        vars.Log("Face");
+        vars.faceTriggered = true;
         return true;
     }
 
