@@ -21,6 +21,7 @@ state("RPG_RT", "steam")
     int effectsPtr : 0xD2008, 0x20;
     int weirdMenuVal : 0x000D2078, 0x9A4;
     int frames : 0xD2008, 0x8;
+    int uboaState : 0xD2008, 0x28, 0x28;
 }
 
 
@@ -48,6 +49,8 @@ startup
     }
 
     settings.Add("splitCloset", true, "Split on entering closet");
+
+    settings.Add("splitUboa", true, "Split on Uboa spawn")
 }
 
 init
@@ -112,6 +115,11 @@ split
     // Split on ending game
     if (current.levelid == 4 && current.posX < 10 && old.posX >= 10){
         vars.Log("End");
+        return true;
+    }
+
+    if (setting["splitUboa"] && current.uboaState == 2 && old.uboaState != 2){
+        vars.Log("Uboa Spawned");
         return true;
     }
 
