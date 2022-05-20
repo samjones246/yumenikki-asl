@@ -58,11 +58,11 @@ startup
         settings.Add("effect"+i, defaults.Contains(effect_names[i]), effect_names[i], "splitEffect");
     }
 
-    settings.Add("splitCloset", true, "Split on entering closet");
+    settings.Add("splitCloset", false, "Split on entering closet");
 
-    settings.Add("splitUboa", true, "Split on Uboa spawn");
+    settings.Add("splitUboa", false, "Split on Uboa spawn");
 
-    settings.Add("splitFace", true, "Split on FACE event");
+    settings.Add("splitFace", false, "Split on FACE event");
 }
 
 init
@@ -130,7 +130,7 @@ split
         return true;
     }
 
-    if (settings["splitUboa"] && current.uboaState == 2 && old.uboaState != 2){
+    if (settings["splitUboa"] && current.levelid == 109 && current.uboaState == 2 && old.uboaState != 2){
         vars.Log("Uboa Spawned");
         return true;
     }
