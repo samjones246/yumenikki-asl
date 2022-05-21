@@ -58,7 +58,9 @@ startup
         settings.Add("effect"+i, defaults.Contains(effect_names[i]), effect_names[i], "splitEffect");
     }
 
-    settings.Add("splitCloset", false, "Split on entering closet");
+    settings.Add("splitCloset", true, "Split on entering closet");
+
+    settings.Add("splitBarracks", false, "Split on barracks warp");
 
     settings.Add("splitUboa", false, "Split on Uboa spawn");
 
@@ -121,6 +123,12 @@ split
     // Split on entering closet
     if (settings["splitCloset"] && (old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
         vars.Log("Entered closet");
+        return true;
+    }
+
+    // Split on barracks warp
+    if (settings["splitBarracks"] && old.levelid == 66 && current.levelid == 154){
+        vars.Log("Barracks warp");
         return true;
     }
 
