@@ -2,7 +2,7 @@
 LiveSplit autosplitter for [Yume Nikki](https://store.steampowered.com/app/650700/Yume_Nikki/) by Kikiyama
 
 ## Usage
-This autosplitter is in the LiveSplit autosplitters list, so it will automatically be avaible in the Edit Splits menu in LiveSplit when you have a Yume Nikki splits file open. From the Edit Splits menu you can activate/deactivate the autosplitter, as well as access its settings. The settings allow you to change your split points, which are set to the following by default:
+This autosplitter is in the LiveSplit autosplitters list, so it will automatically be available in the Edit Splits menu in LiveSplit when you have a Yume Nikki splits file open. From the Edit Splits menu you can activate/deactivate the autosplitter, as well as access its settings. The settings allow you to change your split points, which are set to the following by default:
  - Entering closet
  - Demon/Oni effect acquired
  - Triangle Kerchief/Spirit headband acquired
