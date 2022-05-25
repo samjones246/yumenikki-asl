@@ -9,8 +9,8 @@ state("RPG_RT", "0.10_eng")
     // Pointer to the start of the array containing the player's inventory
     int effectsPtr : 0xD1FF8, 0x20;
 
-    // A value used for detecting when start is pressed. I have no idea what it is.
-    int weirdMenuVal : 0x000D1F60, 0x5DC;
+    // Becomes true when the new game button is pressed.
+    bool start : 0xD1E08, 0x8, 0x14, 0x70;
 
     // Frame counter, resets on entering menu and on entering instructions screen after starting game
     int frames : 0xD1FF8, 0x8;
@@ -24,17 +24,14 @@ state("RPG_RT", "0.10_eng")
 
 state("RPG_RT", "steam")
 { 
-
     int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
     int effectsPtr : 0xD2008, 0x20;
-    int weirdMenuVal : 0x000D2078, 0x9B4;
+    bool start : 0xD1E08, 0x8, 0x14, 0x70;
     int frames : 0xD2008, 0x8;
     int uboaState : 0xD2008, 0x28, 0x28;
     bool doorFlag : 0xD2008, 0x20, 0x7f; 
 }
-
-
 
 startup
 {
@@ -100,15 +97,15 @@ update
         vars.Log("Level changed: " + old.levelid + " -> " + current.levelid);
     }
 
-    if(current.weirdMenuVal != old.weirdMenuVal){
-        vars.Log("Weird menu value changed: " + old.weirdMenuVal + " -> " + current.weirdMenuVal);
+    if(current.start != old.start){
+        vars.Log("Start flag: " + current.start);
     }
 }
 
 start
 {
     // Bad and hacky
-    if (old.weirdMenuVal == 100 && current.weirdMenuVal < 100){
+    if (current.start && !old.start){
         vars.Log("Starting timer");
         vars.startFrames = current.frames;
         return true;
