@@ -166,7 +166,7 @@ reset
 
 isLoading
 {
-    return current.levelid == 9 && current.switches[127] == 0x01 && current.switches[132] == 0x00;
+    return current.levelid == 9 && current.switches[128] == 0x01 && current.switches[132] == 0x00;
 }
 
 exit
