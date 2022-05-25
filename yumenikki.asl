@@ -6,8 +6,8 @@ state("RPG_RT", "0.10_eng")
     // Player x coordinate
     int posX : 0xD2004, 0x14;
 
-    // Pointer to the start of the array containing the player's inventory
-    int effectsPtr : 0xD1FF8, 0x20;
+    // Pointer to the start of the array containing the games switches (global booleans)
+    int switchesPtr : 0xD1FF8, 0x20;
 
     // Becomes true when the new game button is pressed.
     bool start : 0xD1E08, 0x8, 0x14, 0x70;
@@ -26,7 +26,7 @@ state("RPG_RT", "steam")
 { 
     int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
-    int effectsPtr : 0xD2008, 0x20;
+    int switchesPtr : 0xD2008, 0x20;
     bool start : 0xD1E08, 0x8, 0x14, 0x70;
     int frames : 0xD2008, 0x8;
     int uboaState : 0xD2008, 0x28, 0x28;
@@ -63,11 +63,8 @@ startup
     }
 
     settings.Add("splitCloset", true, "Split on entering closet");
-
     settings.Add("splitBarracks", false, "Split on barracks warp");
-
     settings.Add("splitUboa", false, "Split on Uboa spawn");
-
     settings.Add("splitFace", false, "Split on FACE event");
 }
 
@@ -76,7 +73,7 @@ init
     vars.Log("---INIT---");
     vars.Log("Module name: " + modules.First().ModuleName);
     vars.Log("Module size: " + modules.First().ModuleMemorySize.ToString("X"));
-    if (modules.First().ModuleMemorySize == 0x106000){
+    if (modules.First().ModuleMemorySize == 0x106000 || modules.First().ModuleMemorySize == 0xF1000){
         version = "steam";
     }
     else if (modules.First().ModuleMemorySize == 0xF2000){
@@ -87,11 +84,11 @@ init
 update
 {
     // Update inventory array
-    if (!((IDictionary<String, Object>)current).ContainsKey("effects")){
-        current.effects = null;
+    if (!((IDictionary<String, Object>)current).ContainsKey("switches")){
+        current.switches = null;
     }
-    old.effects = current.effects;
-    current.effects = game.ReadBytes(new IntPtr(current.effectsPtr), 24);
+    old.switches = current.switches;
+    current.switches = game.ReadBytes(new IntPtr(current.switchesPtr), 300);
 
     if (current.levelid != old.levelid){
         vars.Log("Level changed: " + old.levelid + " -> " + current.levelid);
@@ -115,9 +112,9 @@ start
 split
 {
     // Split on effect acquisition
-    if (old.effects != null && current.effects != null){
+    if (old.switches != null && current.switches != null){
         for (int i=0;i<24;i++){
-            if (current.effects[i] == 0x01 && old.effects[i] == 0x00){
+            if (current.switches[i] == 0x01 && old.switches[i] == 0x00){
                 vars.Log("Effect " + i + " acquired");
                 if (settings["effect"+i]){
                     return true;
@@ -165,6 +162,11 @@ reset
         vars.Log("Resetting");
         return true;
     }
+}
+
+isLoading
+{
+    return current.levelid == 9 && current.switches[127] == 0x01 && current.switches[132] == 0x00;
 }
 
 exit
