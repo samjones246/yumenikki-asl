@@ -31,14 +31,21 @@ state("RPG_RT", "steam")
     int weirdMenuVal : 0x000D2078, 0x9B4;
     int frames : 0xD2008, 0x8;
     int uboaState : 0xD2008, 0x28, 0x28;
-    bool doorFlag : 0xD2008, 0x20, 0x7f;
+    bool doorFlag : 0xD2008, 0x20, 0x7f; 
 }
 
 
 
 startup
 {
-    vars.Log = (Action<object>)((output) => print("[Yume Nikki ASL] " + output));
+    vars.Log = (Action<object>)((output) => {
+        print("[Yume Nikki ASL] " + output);
+        using (StreamWriter writer = new StreamWriter("yumenikki-asl.log", true)) {
+            writer.WriteLine("[" + DateTime.Now.ToString("yyMMdd HH:mm:ss.fff") + "] " + output);
+        }
+    });
+
+    vars.Log("---STARTUP---");
 
     // String at index i has offset i from effects ptr
     string[] effect_names = new string[] {
@@ -69,11 +76,9 @@ startup
 
 init
 {
-    vars.DEBUG = true;
-    if (vars.DEBUG){
-        vars.Log(modules.First().ModuleName);
-        vars.Log(modules.First().ModuleMemorySize.ToString("X"));
-    }
+    vars.Log("---INIT---");
+    vars.Log("Module name: " + modules.First().ModuleName);
+    vars.Log("Module size: " + modules.First().ModuleMemorySize.ToString("X"));
     if (modules.First().ModuleMemorySize == 0x106000){
         version = "steam";
     }
@@ -91,8 +96,12 @@ update
     old.effects = current.effects;
     current.effects = game.ReadBytes(new IntPtr(current.effectsPtr), 24);
 
-    if (current.levelid != old.levelid && vars.DEBUG){
+    if (current.levelid != old.levelid){
         vars.Log("Level changed: " + old.levelid + " -> " + current.levelid);
+    }
+
+    if(current.weirdMenuVal != old.weirdMenuVal){
+        vars.Log("Weird menu value changed: " + old.weirdMenuVal + " -> " + current.weirdMenuVal);
     }
 }
 
@@ -100,7 +109,7 @@ start
 {
     // Bad and hacky
     if (old.weirdMenuVal == 100 && current.weirdMenuVal < 100){
-        vars.Log("Starting");
+        vars.Log("Starting timer");
         vars.startFrames = current.frames;
         return true;
     }
@@ -112,8 +121,8 @@ split
     if (old.effects != null && current.effects != null){
         for (int i=0;i<24;i++){
             if (current.effects[i] == 0x01 && old.effects[i] == 0x00){
+                vars.Log("Effect " + i + " acquired");
                 if (settings["effect"+i]){
-                    vars.Log("Effect " + i + " acquired");
                     return true;
                 }
             }
@@ -121,34 +130,33 @@ split
     }
 
     // Split on entering closet
-    if (settings["splitCloset"] && (old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
+    if ((old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
         vars.Log("Entered closet");
-        return true;
+        return settings["splitCloset"];
     }
 
     // Split on barracks warp
-    if (settings["splitBarracks"] && old.levelid == 66 && current.levelid == 154){
+    if (old.levelid == 66 && current.levelid == 154){
         vars.Log("Barracks warp");
-        return true;
+        return settings["splitBarracks"];
     }
 
     // Split on ending game
     if (current.levelid == 4 && current.posX < 10 && old.posX >= 10){
-        vars.Log("End");
+        vars.Log("Balcony jump");
         return true;
     }
 
-    if (settings["splitUboa"] && current.levelid == 109 && current.uboaState == 2 && old.uboaState != 2){
+    if (current.levelid == 109 && current.uboaState == 2 && old.uboaState != 2){
         vars.Log("Uboa Spawned");
-        return true;
+        return settings["splitUboa"];
     }
 
     // Split on entering FACE door.
     // Checks for: right level, right x-coord, and door flag active
-    if (settings["splitFace"] && current.levelid == 33 && current.doorFlag && !old.doorFlag && current.posX == 29){
+    if (current.levelid == 33 && current.doorFlag && !old.doorFlag && current.posX == 29){
         vars.Log("Face");
-        vars.faceTriggered = true;
-        return true;
+        return settings["splitFace"];
     }
 
     return false;
@@ -156,5 +164,18 @@ split
 
 reset
 {
-    return current.frames < old.frames && old.frames != vars.startFrames;
+    if (current.frames < old.frames && old.frames != vars.startFrames){
+        vars.Log("Resetting");
+        return true;
+    }
+}
+
+exit
+{
+    vars.Log("---EXIT---");
+}
+
+shutdown
+{
+    vars.Log("---SHUTDOWN---");
 }
