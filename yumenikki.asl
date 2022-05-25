@@ -54,6 +54,15 @@ startup
         "Witch",             "Demon",      "Buyo buyo",     "Stoplight"
     };
 
+    Dictionary<int, string> room_names = new Dictionary<int, string> {
+        {114, "Ghost World (Kerchief)"},
+        {79, "Mall Music Room (Flute)"},
+        {20, "Neon World (Neon)"},
+        {86, "Dark Woods (Stoplight)"},
+        {93, "Witch Island (Witch)"},
+        {18, "Candle World (Midget)"},
+    };
+
     List<string> defaults = new List<string>() {"Demon", "Triangle kerchief", "Witch"};
 
     settings.Add("splitEffect", true, "Split on effect acquired");
@@ -66,6 +75,13 @@ startup
     settings.Add("splitBarracks", false, "Split on barracks warp");
     settings.Add("splitUboa", false, "Split on Uboa spawn");
     settings.Add("splitFace", false, "Split on FACE event");
+
+    settings.Add("splitWarp", false, "Split on any Medamaude warp");
+    settings.Add("splitRoomWarp", false, "Split on Medamaude warp from certain rooms");
+    foreach (int id in room_names.Keys)
+    {
+        settings.Add("warp"+id, false, room_names[id], "splitRoomWarp");
+    }
 }
 
 init
@@ -124,7 +140,7 @@ split
     }
 
     // Split on entering closet
-    if ((old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
+    if ((current.levelid == 35 || current.levelid == 36) && current.switches[128] == 0x01 && old.switches[128] == 0x00){
         vars.Log("Entered closet");
         return settings["splitCloset"];
     }
@@ -151,6 +167,12 @@ split
     if (current.levelid == 33 && current.doorFlag && !old.doorFlag && current.posX == 29){
         vars.Log("Face");
         return settings["splitFace"];
+    }
+
+    // Split on warp
+    if (current.switches[225] == 1 && old.switches[225] == 0){
+        vars.Log("Medamaude warp");
+        return settings["splitWarp"] || settings["warp"+current.levelid];
     }
 
     return false;
