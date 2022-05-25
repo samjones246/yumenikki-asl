@@ -28,7 +28,7 @@ state("RPG_RT", "steam")
     int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
     int effectsPtr : 0xD2008, 0x20;
-    int weirdMenuVal : 0x000D2078, 0x9A4;
+    int weirdMenuVal : 0x000D2078, 0x9B4;
     int frames : 0xD2008, 0x8;
     int uboaState : 0xD2008, 0x28, 0x28;
     bool doorFlag : 0xD2008, 0x20, 0x7f;
@@ -99,7 +99,7 @@ update
 start
 {
     // Bad and hacky
-    if (old.weirdMenuVal == 1000 && current.weirdMenuVal == 800 || old.weirdMenuVal == 70 && current.weirdMenuVal == 100){
+    if (old.weirdMenuVal == 100 && current.weirdMenuVal < 100){
         vars.Log("Starting");
         vars.startFrames = current.frames;
         return true;
