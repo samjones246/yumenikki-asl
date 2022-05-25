@@ -99,7 +99,7 @@ update
 start
 {
     // Bad and hacky
-    if (old.weirdMenuVal == 1000 && current.weirdMenuVal == 800){
+    if (old.weirdMenuVal == 1000 && current.weirdMenuVal == 800 || old.weirdMenuVal == 70 && current.weirdMenuVal == 100){
         vars.Log("Starting");
         vars.startFrames = current.frames;
         return true;
