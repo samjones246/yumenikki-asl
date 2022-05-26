@@ -72,6 +72,7 @@ startup
     }
 
     settings.Add("splitCloset", true, "Split on entering closet");
+    settings.Add("splitClosetExit", false, "Split on exiting closet");
     settings.Add("splitBarracks", false, "Split on barracks warp");
     settings.Add("splitUboa", false, "Split on Uboa spawn");
     settings.Add("splitFace", false, "Split on FACE event");
@@ -143,6 +144,12 @@ split
     if ((current.levelid == 35 || current.levelid == 36) && current.switches[128] == 0x01 && old.switches[128] == 0x00){
         vars.Log("Entered closet");
         return settings["splitCloset"];
+    }
+
+    // Split on exit closet
+    if ((old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
+        vars.Log("Exited closet");
+        return settings["splitClosetExit"];
     }
 
     // Split on barracks warp
