@@ -87,6 +87,7 @@ startup
 
 init
 {
+    try {
     vars.Log("---INIT---");
     vars.Log("Module name: " + modules.First().ModuleName);
     vars.Log("Module size: " + modules.First().ModuleMemorySize.ToString("X"));
@@ -96,10 +97,14 @@ init
     else if (modules.First().ModuleMemorySize == 0xF2000){
         version = "0.10_eng";
     }
+    } catch (Exception e) {
+        vars.Log(e);
+    }
 }
 
 update
 {
+    try {
     // Update inventory array
     if (!((IDictionary<String, Object>)current).ContainsKey("switches")){
         current.switches = null;
@@ -114,20 +119,28 @@ update
     if(current.start != old.start){
         vars.Log("Start flag: " + current.start);
     }
+    } catch (Exception e) {
+        vars.Log(e);
+    }
 }
 
 start
 {
+    try {
     // Bad and hacky
     if (current.start && !old.start){
         vars.Log("Starting timer");
         vars.startFrames = current.frames;
         return true;
     }
+    } catch (Exception e) {
+        vars.Log(e);
+    }
 }
 
 split
 {
+    try {
     // Split on effect acquisition
     if (old.switches != null && current.switches != null){
         for (int i=0;i<24;i++){
@@ -183,19 +196,30 @@ split
     }
 
     return false;
+    } catch (Exception e) {
+        vars.Log(e);
+    }
 }
 
 reset
 {
+    try {
     if (current.frames < old.frames && old.frames != vars.startFrames){
         vars.Log("Resetting");
         return true;
+    }
+    } catch (Exception e) {
+        vars.Log(e);
     }
 }
 
 isLoading
 {
+    try {
     return current.levelid == 9 && current.switches[128] == 0x01 && current.switches[132] == 0x00;
+    } catch (Exception e) {
+        vars.Log(e);
+    }
 }
 
 exit
