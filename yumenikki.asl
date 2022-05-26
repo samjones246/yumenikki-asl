@@ -42,6 +42,7 @@ startup
         }
     });
 
+    try{
     vars.Log("---STARTUP---");
 
     // String at index i has offset i from effects ptr
@@ -83,6 +84,10 @@ startup
     {
         settings.Add("warp"+id, false, room_names[id], "splitRoomWarp");
     }
+    } catch (Exception e) {
+        vars.Log(e);
+        throw e;
+    }
 }
 
 init
@@ -99,6 +104,7 @@ init
     }
     } catch (Exception e) {
         vars.Log(e);
+        throw e;
     }
 }
 
@@ -121,6 +127,7 @@ update
     }
     } catch (Exception e) {
         vars.Log(e);
+        throw e;
     }
 }
 
@@ -135,6 +142,7 @@ start
     }
     } catch (Exception e) {
         vars.Log(e);
+        throw e;
     }
 }
 
@@ -198,6 +206,7 @@ split
     return false;
     } catch (Exception e) {
         vars.Log(e);
+        throw e;
     }
 }
 
@@ -210,6 +219,7 @@ reset
     }
     } catch (Exception e) {
         vars.Log(e);
+        throw e;
     }
 }
 
@@ -219,6 +229,7 @@ isLoading
     return current.levelid == 9 && current.switches[128] == 0x01 && current.switches[132] == 0x00;
     } catch (Exception e) {
         vars.Log(e);
+        throw e;
     }
 }
 
