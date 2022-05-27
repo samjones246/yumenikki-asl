@@ -20,8 +20,11 @@ Misc category endings can also be enabled from this screen. Splitting when jumpi
  - Auto reset on quit to menu
  - Split points:
     - Acquiring effects
-    - Entering closet
-    - Barracks warp
+    - Medamaude usage (configurable)
+    - Teleports:
+      - Closet
+      - Barracks
+      - Demon
  - Endings:
     - Jumping from balcony
     - FACE
