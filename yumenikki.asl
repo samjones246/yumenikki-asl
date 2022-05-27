@@ -157,6 +157,10 @@ update
     if(current.start != old.start){
         vars.Log("Start flag: " + current.start);
     }
+
+    if (current.eventID != old.eventID){
+        vars.Log("Event ID: " + current.eventID);
+    }
     } catch (Exception e) {
         vars.Log(e);
         throw e;
