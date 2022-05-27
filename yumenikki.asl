@@ -9,6 +9,9 @@ state("RPG_RT", "0.10_eng")
     // Pointer to the start of the array containing the games switches (global booleans)
     int switchesPtr : 0xD1FF8, 0x20;
 
+    // Pointer to the start of the array containing the games variables (global integers)
+    int varsPtr : 0xD1FF8, 0x28;
+
     // Becomes true when the new game button is pressed.
     bool start : 0xD1E08, 0x8, 0x14, 0x70;
 
@@ -20,6 +23,9 @@ state("RPG_RT", "0.10_eng")
 
     // A boolean which is true during transitions and certain other places
     bool doorFlag : 0xD1FF8, 0x20, 0x7f;
+
+    // ID of the (top level) room event currently being executed
+    int eventID : 0xD1FF8, 0x88, 0x1C, 0x0, 0x1C;
 }
 
 state("RPG_RT", "steam")
@@ -27,10 +33,12 @@ state("RPG_RT", "steam")
     int levelid : 0xD2068, 0x4;
     int posX : 0xD2014, 0x14;
     int switchesPtr : 0xD2008, 0x20;
+    int varsPtr : 0xD2008, 0x28;
     bool start : 0xD1E08, 0x8, 0x14, 0x70;
     int frames : 0xD2008, 0x8;
     int uboaState : 0xD2008, 0x28, 0x28;
-    bool doorFlag : 0xD2008, 0x20, 0x7f; 
+    bool doorFlag : 0xD2008, 0x20, 0x7f;
+    int eventID : 0xD2008, 0x88, 0x1C, 0x0, 0x1C;
 }
 
 startup
@@ -72,9 +80,15 @@ startup
         settings.Add("effect"+i, defaults.Contains(effect_names[i]), effect_names[i], "splitEffect");
     }
 
-    settings.Add("splitCloset", true, "Split on entering closet");
-    settings.Add("splitClosetExit", false, "Split on exiting closet");
-    settings.Add("splitBarracks", false, "Split on barracks warp");
+    settings.Add("splitCloset", true, "Split on closet (entry)");
+    settings.Add("splitClosetExit", false, "Split on closet (exit)");
+    settings.Add("splitBarracks", false, "Split on barracks warp (activation)");
+    settings.Add("splitBarracksExit", false, "Split on barracks warp (after)");
+    settings.Add("splitDemon", false, "Split on demon warp (activation)");
+    settings.Add("splitDemonExit", false, "Split on demon warp (after)");
+
+    vars.piroriEvents = new int[] {1, 25, 72, 64, 67, 65}; 
+
     settings.Add("splitUboa", false, "Split on Uboa spawn");
     settings.Add("splitFace", false, "Split on FACE event");
 
@@ -102,6 +116,7 @@ init
     else if (modules.First().ModuleMemorySize == 0xF2000){
         version = "0.10_eng";
     }
+    vars.firstUpdate = true;
     } catch (Exception e) {
         vars.Log(e);
         throw e;
@@ -115,8 +130,23 @@ update
     if (!((IDictionary<String, Object>)current).ContainsKey("switches")){
         current.switches = null;
     }
+    if (!((IDictionary<String, Object>)current).ContainsKey("variables")){
+        current.variables = null;
+    }
     old.switches = current.switches;
     current.switches = game.ReadBytes(new IntPtr(current.switchesPtr), 300);
+    old.variables = current.variables;
+    byte[] varsBytes = game.ReadBytes(new IntPtr(current.varsPtr), 300 * 4);
+    current.variables = new int[300];
+    for (int i = 0; i < 300; i++)
+    {
+        current.variables[i] = BitConverter.ToInt32(varsBytes, i * 4);
+    }
+
+    if(vars.firstUpdate){
+        vars.firstUpdate = false;
+        vars.Log("Build: " + current.variables[0]);
+    }
 
     if (current.levelid != old.levelid){
         vars.Log("Level changed: " + old.levelid + " -> " + current.levelid);
@@ -161,22 +191,43 @@ split
         }
     }
 
-    // Split on entering closet
+    // Split on closet (entry)
     if ((current.levelid == 35 || current.levelid == 36) && current.switches[128] == 0x01 && old.switches[128] == 0x00){
         vars.Log("Entered closet");
         return settings["splitCloset"];
     }
 
-    // Split on exit closet
+    // Split on closet (exit)
     if ((old.levelid == 35 || old.levelid == 36) && current.levelid == 30){
         vars.Log("Exited closet");
         return settings["splitClosetExit"];
     }
 
-    // Split on barracks warp
-    if (old.levelid == 66 && current.levelid == 154){
-        vars.Log("Barracks warp");
+    // Split on demon warp (activation)
+    // S247 Map Moving: ON
+    // V048 Map Move Type: 2
+    if (current.levelid == 146 && current.eventID == 1 && old.eventID != 1){
+        vars.Log("Demon warp activated");
+        return settings["splitDemon"];
+    }
+
+    // Split on demon warp (after)
+    if (current.levelid == 140 && old.levelid==146){
+        vars.Log("Demon warp finished");
+        return settings["splitDemonExit"];
+    }
+
+    // Split on barracks warp (activation)
+    // Pirori Engaged == V011: Private Room Var A 
+    if (current.levelid == 66 && current.eventID == vars.piroriEvents[current.variables[10]-1] && old.eventID != current.eventID){
+        vars.Log("Barracks warp activated");
         return settings["splitBarracks"];
+    }
+
+    // Split on barracks warp (after)
+    if (old.levelid == 66 && current.levelid == 154){
+        vars.Log("Barracks warp exit");
+        return settings["splitBarracksExit"];
     }
 
     // Split on ending game
