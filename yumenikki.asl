@@ -192,7 +192,7 @@ split
     }
 
     // Split on closet (entry)
-    if ((current.levelid == 35 || current.levelid == 36) && current.switches[128] == 0x01 && old.switches[128] == 0x00){
+    if ((current.levelid == 35 || current.levelid == 36) && current.eventID == 1 && old.eventID != 1){
         vars.Log("Entered closet");
         return settings["splitCloset"];
     }
