@@ -39,7 +39,6 @@ state("RPG_RT", "steam")
     int uboaState : 0xD2008, 0x28, 0x28;
     bool doorFlag : 0xD2008, 0x20, 0x7f;
     int eventID : 0xD202C, 0x4, 0x8, 0x4, 0x0, 0x1C;
-    
 }
 
 startup
@@ -81,12 +80,14 @@ startup
         settings.Add("effect"+i, defaults.Contains(effect_names[i]), effect_names[i], "splitEffect");
     }
 
-    settings.Add("splitCloset", true, "Split on closet (entry)");
-    settings.Add("splitClosetExit", false, "Split on closet (exit)");
-    settings.Add("splitBarracks", false, "Split on barracks warp (activation)");
-    settings.Add("splitBarracksExit", false, "Split on barracks warp (after)");
-    settings.Add("splitDemon", false, "Split on demon warp (activation)");
-    settings.Add("splitDemonExit", false, "Split on demon warp (after)");
+    settings.Add("splitTP", true, "Split on teleport start/end");
+
+    settings.Add("splitCloset", true, "Closet (start)", "splitTP");
+    settings.Add("splitClosetExit", false, "Closet (end)", "splitTP");
+    settings.Add("splitBarracks", false, "Barracks (start)", "splitTP");
+    settings.Add("splitBarracksExit", false, "Barracks (end)", "splitTP");
+    settings.Add("splitDemon", false, "Demon (start)", "splitTP");
+    settings.Add("splitDemonExit", false, "Demon (end)", "splitTP");
 
     vars.piroriEvents = new int[] {1, 25, 72, 64, 67, 65}; 
 
