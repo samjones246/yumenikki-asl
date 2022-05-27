@@ -136,11 +136,13 @@ update
     old.switches = current.switches;
     current.switches = game.ReadBytes(new IntPtr(current.switchesPtr), 300);
     old.variables = current.variables;
-    byte[] varsBytes = game.ReadBytes(new IntPtr(current.varsPtr), 300 * 4);
     current.variables = new int[300];
-    for (int i = 0; i < 300; i++)
-    {
-        current.variables[i] = BitConverter.ToInt32(varsBytes, i * 4);
+    byte[] varsBytes = game.ReadBytes(new IntPtr(current.varsPtr), 300 * 4);
+    if (varsBytes != null){
+        for (int i = 0; i < 300; i++)
+        {
+            current.variables[i] = BitConverter.ToInt32(varsBytes, i * 4);
+        }
     }
 
     if(vars.firstUpdate){
@@ -164,8 +166,7 @@ update
 start
 {
     try {
-    // Bad and hacky
-    if (current.start && !old.start){
+    if (current.start && !old.start && current.switchesPtr == 0){
         vars.Log("Starting timer");
         vars.startFrames = current.frames;
         return true;
