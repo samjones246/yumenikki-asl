@@ -186,14 +186,16 @@ start
 split
 {
     try {
+    // Avoid spamming errors before switches have initialised
+    if (current.switches == null || old.switches == null){
+        return false;
+    }
     // Split on effect acquisition
-    if (old.switches != null && current.switches != null){
-        for (int i=0;i<24;i++){
-            if (current.switches[i] == 0x01 && old.switches[i] == 0x00){
-                vars.Log("Effect " + i + " acquired");
-                if (settings["effect"+i]){
-                    return true;
-                }
+    for (int i=0;i<24;i++){
+        if (current.switches[i] == 0x01 && old.switches[i] == 0x00){
+            vars.Log("Effect " + i + " acquired");
+            if (settings["effect"+i]){
+                return true;
             }
         }
     }
@@ -284,7 +286,7 @@ reset
 isLoading
 {
     try {
-    return current.levelid == 9 && current.switches[128] == 0x01 && current.switches[132] == 0x00;
+    return current.levelid == 9 && current.switches != null && current.switches[128] == 0x01 && current.switches[132] == 0x00;
     } catch (Exception e) {
         vars.Log(e);
         throw e;
